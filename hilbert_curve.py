@@ -8,7 +8,7 @@ Supports introspection, educational visualization, and testability.
 
 import math
 
-# === Public API ===
+#### MARK: Public API
 
 def point_from_distance(order, index):
     """(hilbertcurve module compatible) Alias for `hilbert_index_to_point`."""
@@ -126,7 +126,7 @@ def hilbert_index_matrix(order):
     return matrix
 
 
-# === Internal ===
+#### MARK: Internal
 
 def _hilbert_rotate(n, x, y, rx, ry):
     """
@@ -148,8 +148,9 @@ def _hilbert_rotate(n, x, y, rx, ry):
     return x, y
 
 
-# === Static Educational Reference ===
+#### MARK: Static Reference (visual aid)
 
+# The order of steps along Hilbert curve 
 HILBERT_3 = (
     ( 0,  3,  4,  5, 58, 59, 60, 63),
     ( 1,  2,  7,  6, 57, 56, 61, 62),
