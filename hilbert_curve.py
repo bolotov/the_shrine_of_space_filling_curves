@@ -1,24 +1,30 @@
 """
 Manual implementation of Hilbert curve mappings for 2D space.
 Includes bidirectional conversion between curve index and (x, y) coordinates,
-with compatibility functions for the `hilbertcurve` module.
-
-Supports introspection, educational visualization, and testability.
+with partial compatibility functions for the `hilbertcurve` module.
 """
 
-import math
+from typing import Tuple, Dict  # List
+
+
+#### MARK: Static Reference / visual aid
+
+# Numbers of steps along Hilbert curve of order 3.
+HILBERT_3 = (
+    ( 0,  3,  4,  5, 58, 59, 60, 63),  #  v┌─┐┌─┐^
+    ( 1,  2,  7,  6, 57, 56, 61, 62),  #  └┘┌┘└┐└┘
+    (14, 13,  8,  9, 54, 55, 50, 49),  #  ┌┐└┐┌┘┌┐
+    (15, 12, 11, 10, 53, 52, 51, 48),  #  │└─┘└─┘│
+    (16, 17, 30, 31, 32, 33, 46, 47),  #  └┐┌──┐┌┘
+    (19, 18, 29, 28, 35, 34, 45, 44),  #  ┌┘└┐┌┘└┐
+    (20, 23, 24, 27, 36, 39, 40, 43),  #  │┌┐││┌┐│
+    (21, 22, 25, 26, 37, 38, 41, 42),  #  └┘└┘└┘└┘
+)
+
 
 #### MARK: Public API
 
-def point_from_distance(order, index):
-    """(hilbertcurve module compatible) Alias for `hilbert_index_to_point`."""
-    return hilbert_index_to_point(order, index)
-
-def distance_from_point(order, x, y):
-    """(hilbertcurve module compatible) Alias for `point_to_hilbert_index`."""
-    return point_to_hilbert_index(x, y, order)
-
-def hilbert_index_to_point(order, index):
+def hilbert_index_to_point(order: int, index: int) -> Tuple[int, int]:
     """
     Convert a Hilbert curve index to a 2D point (x, y).
 
@@ -43,8 +49,7 @@ def hilbert_index_to_point(order, index):
         s *= 2
     return x, y
 
-
-def point_to_hilbert_index(x, y, order):
+def point_to_hilbert_index(x: int, y: int, order: int) -> int:
     """
     Convert a 2D point (x, y) to a Hilbert curve index.
 
@@ -66,8 +71,7 @@ def point_to_hilbert_index(x, y, order):
         s //= 2
     return index
 
-
-def generate_hilbert_points(order):
+def generate_hilbert_points(order: int) -> Tuple[Tuple[int, int], ...]:
     """
     Generate all (x, y) points on the Hilbert curve for a given order.
 
@@ -78,10 +82,9 @@ def generate_hilbert_points(order):
     - List of (x, y) coordinates corresponding to the Hilbert curve traversal.
     """
     num_points = 2 ** (2 * order)
-    return [hilbert_index_to_point(order, i) for i in range(num_points)]
+    return tuple(hilbert_index_to_point(order, i) for i in range(num_points))
 
-
-def hilbert_curve_to_coordinates(grid):
+def hilbert_curve_to_coordinates(grid: tuple[tuple[int]]) -> Dict[int, Tuple[int, int]]:
     """
     Convert a 2D array/grid of Hilbert indices to a mapping: index → (x, y)
 
@@ -93,19 +96,7 @@ def hilbert_curve_to_coordinates(grid):
     """
     return {val: (x, y) for x, row in enumerate(grid) for y, val in enumerate(row)}
 
-
-def hilbert_position_at(x, y):
-    """
-    Test/educational function for 3rd-order Hilbert curve.
-    Return the Hilbert index at a specific (x, y) position in order-3 layout.
-
-    Returns:
-    - Index (int)
-    """
-    return HILBERT_3[x][y]
-
-
-def hilbert_index_matrix(order):
+def hilbert_index_matrix(order: int) -> Tuple[Tuple[int, ...], ...]:
     """
     Returns a 2D matrix of shape (2^order x 2^order) where each cell
     contains the Hilbert index corresponding to that (x, y) coordinate.
@@ -119,16 +110,15 @@ def hilbert_index_matrix(order):
     - matrix: 2D list such that matrix[x][y] = hilbert index
     """
     size = 2 ** order
-    matrix = [[0 for _ in range(size)] for _ in range(size)]
-    for x in range(size):
-        for y in range(size):
-            matrix[x][y] = point_to_hilbert_index(x, y, order)
-    return matrix
+    return tuple(
+        tuple(point_to_hilbert_index(x, y, order) for y in range(size))
+        for x in range(size)
+    )
 
 
 #### MARK: Internal
 
-def _hilbert_rotate(n, x, y, rx, ry):
+def _hilbert_rotate(n: int, x: int, y: int, rx: int, ry: int) -> Tuple[int, int]:
     """
     Rotate and flip quadrant as needed during Hilbert index computation.
 
@@ -148,20 +138,28 @@ def _hilbert_rotate(n, x, y, rx, ry):
     return x, y
 
 
-#### MARK: Static Reference (visual aid)
+#### MARK: Convenience and ompatibility Functions
 
-# The order of steps along Hilbert curve 
-HILBERT_3 = (
-    ( 0,  3,  4,  5, 58, 59, 60, 63),
-    ( 1,  2,  7,  6, 57, 56, 61, 62),
-    (14, 13,  8,  9, 54, 55, 50, 49),
-    (15, 12, 11, 10, 53, 52, 51, 48),
-    (16, 17, 30, 31, 32, 33, 46, 47),
-    (19, 18, 29, 28, 35, 34, 45, 44),
-    (20, 23, 24, 27, 36, 39, 40, 43),
-    (21, 22, 25, 26, 37, 38, 41, 42),
-)
+def point_from_distance(order: int, index: int):
+    """(hilbertcurve module compatible) Alias for `hilbert_index_to_point`."""
+    return hilbert_index_to_point(order, index)
 
+def distance_from_point(order: int, x: int, y: int):
+    """(hilbertcurve module compatible) Alias for `point_to_hilbert_index`."""
+    return point_to_hilbert_index(x, y, order)
+
+def hilbert_position_at(x: int, y: int) -> int:
+    """
+    Test/educational function for 3rd-order Hilbert curve.
+    Return the Hilbert index at a specific (x, y) position in order-3 layout.
+
+    Returns:
+    - Index (int)
+    """
+    return HILBERT_3[x][y]
+
+
+### MARK: Main for Testing and Visualization
 
 if __name__ == "__main__":
     order = 3
@@ -176,4 +174,3 @@ if __name__ == "__main__":
         assert idx == i, f"Mismatch: {i} -> {pt} -> {idx}"
 
     print("✔ All index↔point mappings passed.")
-
